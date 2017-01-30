@@ -161,7 +161,7 @@ enum SG_Error {
 # define sg_strcpy_s(a,n,b) ::strcpy(a,b)
 # define sg_strcmp          ::strcmp
 # define sg_strcasecmp      ::strcasecmp
-# define SOCHAR_T           char
+# define SOCHAR_T           charf
 
 #include <stdlib.h>
 #include <string.h>
@@ -347,6 +347,22 @@ struct SimpleGlobBase
             m_bIsDir = true;
             m_glob.gl_pathv[m_uiCurr][len-1] = 0;
         }
+    }
+	
+	SG_FileType GetFileTypeS(const char * a_pszPath) {
+        return GetFileTypeS(GetFileAttributesA(a_pszPath));
+    }
+    SG_FileType GetFileTypeS(const wchar_t * a_pszPath)  {
+        return GetFileTypeS(GetFileAttributesW(a_pszPath));
+    }
+    SG_FileType GetFileTypeS(DWORD a_dwAttribs) const {
+        if (a_dwAttribs == INVALID_FILE_ATTRIBUTES) {
+            return SG_FILETYPE_INVALID;
+        }
+        if (a_dwAttribs & FILE_ATTRIBUTE_DIRECTORY) {
+            return SG_FILETYPE_DIR;
+        }
+        return SG_FILETYPE_FILE;
     }
 
     int FindFirstFileS(const char * a_pszFileSpec, unsigned int a_uiFlags) {
