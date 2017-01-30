@@ -9,10 +9,7 @@
 #include "../SocketServer.h"
 #include "../xmltools.h"
 #include <time.h>
-
-#ifndef WIN32
-	#define Sleep sleep
-#endif
+#include <unistd.h>
 
 #define MAXAUDIOCLIENTS 20
 

@@ -17,7 +17,7 @@ void MonitorAudioPlugIn::addThreadMessage(SocketThread* pClient, std::string mes
 	pMsg->pThread=pClient ;
 	pMsg->message=message ;
 
-	while (m_bLockSocketMessages==true) Sleep(3) ;
+	while (m_bLockSocketMessages==true) usleep(3) ;
 
 	m_bLockSocketMessages=true ;
 	m_SocketMessages.push_back(pMsg) ;
@@ -38,7 +38,7 @@ bool MonitorAudioPlugIn::getThreadMessage(SocketMessage & msg)
 {
 	bool retVal=false ;
 
-	while (m_bLockSocketMessages) Sleep(1) ;
+	while (m_bLockSocketMessages) usleep(1) ;
 
 	m_bLockSocketMessages=true ;
 
