@@ -1,6 +1,6 @@
 AC_INIT([monitord], [2.0svn], [monitor@lists.jhr-online.de])
 AC_CANONICAL_SYSTEM
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall foreign])
 
 
 AC_PROG_CC
