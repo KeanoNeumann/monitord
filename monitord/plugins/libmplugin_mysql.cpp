@@ -1,12 +1,7 @@
 
 #include <typeinfo>
 #include <iostream>
-
-#ifdef WIN32
-#define usleep Sleep
-#include <windows.h>
-#endif
-
+#include <unistd.h>
 
 #include "mysql/mysql.h"
 #include "mplugin.h"
