@@ -150,20 +150,6 @@ enum SG_Error {
 
 // on Windows we want to use MBCS aware string functions and mimic the
 // Unix glob functionality. On Unix we just use glob.
-#ifdef _WIN32
-# include <mbstring.h>
-# define sg_strchr          ::_mbschr
-# define sg_strrchr         ::_mbsrchr
-# define sg_strlen          ::_mbslen
-# if __STDC_WANT_SECURE_LIB__
-#  define sg_strcpy_s(a,n,b) ::_mbscpy_s(a,n,b)
-# else
-#  define sg_strcpy_s(a,n,b) ::_mbscpy(a,b)
-# endif
-# define sg_strcmp          ::_mbscmp
-# define sg_strcasecmp      ::_mbsicmp
-# define SOCHAR_T           unsigned char
-#else
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <glob.h>
@@ -176,7 +162,6 @@ enum SG_Error {
 # define sg_strcmp          ::strcmp
 # define sg_strcasecmp      ::strcasecmp
 # define SOCHAR_T           char
-#endif
 
 #include <stdlib.h>
 #include <string.h>
