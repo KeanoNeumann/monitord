@@ -1,5 +1,5 @@
 # Tell automake to put the object file for monitord/apple.c in dir monitord/
-AUTOMAKE_OPTIONS := subdir-objects
+AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 
 # The installable executable.
@@ -27,8 +27,7 @@ monitord_monitord_SOURCES = \
 	monitord/memlock.cpp \
 	monitord/xmltools.cpp \
 	monitord/MonitorSignals.cpp \
-	xmlParser/xmlParser.cpp
-
+	xmlParser/xmlParser.cpp 
 
 EXTRA_DIST =\
 	xmlParser/xmlParser.h \
@@ -62,6 +61,12 @@ else
 monitord_monitord_SOURCES += \
 	monitord/posix/MonitorAudioOSS.cpp
 endif
+endif
+
+# log4cxx einbinden
+if LOG4CXX
+monitord_monitord_LDFLAGS += @LOG4CXX_LIBS@
+monitord_monitord_CPPFLAGS += -I@LOG4CXX_INCLUDE@
 endif
 
 # LUA Headers und Libs einbinden
@@ -149,6 +154,36 @@ monitord_plugins_libmplugin_mysql_la_LIBS=\
 	${LIBMYSQLCLIENT}
 
 endif # mysql Support ?
+
+# --------------------------------------------------------
+# Monitor-Plugin: ActiveMQ
+#
+if ACTIVEMQ
+pkglib_LTLIBRARIES+= \
+	monitord/plugins/libmplugin_activemq.la
+
+monitord_plugins_libmplugin_activemq_la_SOURCES=\
+	${monitord_plugins_common} \
+	monitord/plugins/mplugin.cpp \
+	monitord/plugins/libmplugin_activemq.cpp \
+	monitord/plugins/base64.cpp
+
+monitord_plugins_libmplugin_activemq_la_CPPFLAGS =\
+	${monitord_monitord_CPPFLAGS} \
+	${ACTIVEMQ_CFLAGS} \
+	${DLL}
+
+# 2015-06-19 ckl: -lactivemq-cpp is required for compilation in an Ubuntu 13.xx environment
+monitord_plugins_libmplugin_activemq_la_LDFLAGS=\
+	-lactivemq-cpp \
+	-no-undefined \
+	${LIBACTIVEMQ_CPP} \
+	${DLL}
+
+monitord_plugin_libmplugin_activemq_la_LIBS=\
+	${ACTIVEMQ_LIBS}
+
+endif
 
 # --------------------------------------------------------
 # Audio-Plugin: Recorder

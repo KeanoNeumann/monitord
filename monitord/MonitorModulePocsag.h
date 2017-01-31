@@ -69,11 +69,10 @@ public:
 	virtual ~MonitorModulePocsag();
 
 	struct rx {
-		unsigned char rx_sync, rx_word, rx_bit ;
-		unsigned int numnibbles;
+		unsigned char rx_sync, rx_word, rx_bit, numnibbles;
 		char func;
 		unsigned long adr;
-		unsigned char buffer[256];
+		unsigned char buffer[128];
 		int receiving;
 		// bool m_bRXmode ;
 		// int m_iPreambelLen

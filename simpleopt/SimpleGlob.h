@@ -150,6 +150,20 @@ enum SG_Error {
 
 // on Windows we want to use MBCS aware string functions and mimic the
 // Unix glob functionality. On Unix we just use glob.
+#ifdef _WIN32
+# include <mbstring.h>
+# define sg_strchr          ::_mbschr
+# define sg_strrchr         ::_mbsrchr
+# define sg_strlen          ::_mbslen
+# if __STDC_WANT_SECURE_LIB__
+#  define sg_strcpy_s(a,n,b) ::_mbscpy_s(a,n,b)
+# else
+#  define sg_strcpy_s(a,n,b) ::_mbscpy(a,b)
+# endif
+# define sg_strcmp          ::_mbscmp
+# define sg_strcasecmp      ::_mbsicmp
+# define SOCHAR_T           unsigned char
+#else
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <glob.h>
@@ -161,7 +175,8 @@ enum SG_Error {
 # define sg_strcpy_s(a,n,b) ::strcpy(a,b)
 # define sg_strcmp          ::strcmp
 # define sg_strcasecmp      ::strcasecmp
-# define SOCHAR_T           charf
+# define SOCHAR_T           char
+#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -347,22 +362,6 @@ struct SimpleGlobBase
             m_bIsDir = true;
             m_glob.gl_pathv[m_uiCurr][len-1] = 0;
         }
-    }
-	
-	SG_FileType GetFileTypeS(const char * a_pszPath) {
-        return GetFileTypeS(GetFileAttributesA(a_pszPath));
-    }
-    SG_FileType GetFileTypeS(const wchar_t * a_pszPath)  {
-        return GetFileTypeS(GetFileAttributesW(a_pszPath));
-    }
-    SG_FileType GetFileTypeS(DWORD a_dwAttribs) const {
-        if (a_dwAttribs == INVALID_FILE_ATTRIBUTES) {
-            return SG_FILETYPE_INVALID;
-        }
-        if (a_dwAttribs & FILE_ATTRIBUTE_DIRECTORY) {
-            return SG_FILETYPE_DIR;
-        }
-        return SG_FILETYPE_FILE;
     }
 
     int FindFirstFileS(const char * a_pszFileSpec, unsigned int a_uiFlags) {
@@ -621,7 +620,7 @@ CSimpleGlobTempl<SOCHAR>::Add(
     if (!SimpleGlobUtil::strchr(a_pszFileSpec, '*') &&
         !SimpleGlobUtil::strchr(a_pszFileSpec, '?'))
     {
-        SG_FileType nType = GetFileTypeS(a_pszFileSpec);
+        SG_FileType nType = this->GetFileTypeS(a_pszFileSpec);
         if (nType == SG_FILETYPE_INVALID) {
             if (m_uiFlags & SG_GLOB_NOCHECK) {
                 return AppendName(a_pszFileSpec, false);
@@ -642,7 +641,7 @@ CSimpleGlobTempl<SOCHAR>::Add(
 #endif
 
     // search for the first match on the file
-    int rc = FindFirstFileS(a_pszFileSpec, m_uiFlags);
+    int rc = this->FindFirstFileS(a_pszFileSpec, m_uiFlags);
     if (rc != SG_SUCCESS) {
         if (rc == SG_ERR_NOMATCH && (m_uiFlags & SG_GLOB_NOCHECK)) {
             int ok = AppendName(a_pszFileSpec, false);
@@ -655,8 +654,8 @@ CSimpleGlobTempl<SOCHAR>::Add(
     int nError, nStartLen = m_nArgsLen;
     bool bSuccess;
     do {
-        nError = AppendName(GetFileNameS((SOCHAR)0), IsDirS((SOCHAR)0));
-        bSuccess = FindNextFileS((SOCHAR)0);
+        nError = AppendName(this->GetFileNameS((SOCHAR)0), this->IsDirS((SOCHAR)0));
+        bSuccess = this->FindNextFileS((SOCHAR)0);
     }
     while (nError == SG_SUCCESS && bSuccess);
     SimpleGlobBase<SOCHAR>::FindDone();

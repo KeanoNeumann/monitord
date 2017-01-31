@@ -1,7 +1,9 @@
-AC_INIT([monitord], [2.0svn], [monitor@lists.jhr-online.de])
+AC_INIT([monitord], m4_esyscmd(git describe --abbrev=6 --dirty --always --tags | tr -d '\n\r'), [monitor@lists.jhr-online.de])
 AC_CANONICAL_SYSTEM
-AM_INIT_AUTOMAKE([-Wall foreign])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
+m4_pattern_allow([AM_PROG_AR])
+AM_PROG_AR
 
 AC_PROG_CC
 AC_PROG_CXX
@@ -10,7 +12,6 @@ AC_PROG_CXX
 
 AX_LUA_HEADERS
 AX_LUA_LIBS
-
 
 case "$host_os" in
 	linux*)
@@ -26,6 +27,8 @@ case "$host_os" in
 		SOXLIBDLL=[libsox.so] 	
 		MYSQLLIBNAME=[mysqlclient]
 		MYSQLLIBDLL=[libmysqlclient.so] 
+		ACTIVEMQLIBNAME=[activemq-cpp]
+		ACTIVEMQDLL=[libactivemq-cpp.so]
 		;;
 	mingw32*)
 		WINDOWS=true
@@ -40,6 +43,8 @@ case "$host_os" in
 		VORBISENCLIBNAME=[vorbisenc-0]
 		MYSQLLIBNAME=[mysql]
 		MYSQLLIBDLL=[libmysql.dll]
+		ACTIVEMQNAME=]activemq-cpp]
+		ACTIVEMQDLL=[libactivemq-cpp.dll]
 		AC_LIBTOOL_WIN32_DLL
 		;;
 esac
@@ -55,7 +60,28 @@ if test x$WINDOWS != xtrue; then
 fi
 AM_CONDITIONAL(ALSA, test x$HAVE_ALSA = xyes)
 
+AC_ARG_WITH([log4cxx],
+	[AC_HELP_STRING([--with-log4cxx],
+		[enable log4cxx support (default is no)])],
+	[
+		(use_log4cxx=$withval)
+		HAVE_LOG4CXX=yes
+		AC_DEFINE([HAVE_LOG4CXX], [1], [defines that you have log4cxx])
+	],
+	[use_log4cxx=no])
 
+AM_CONDITIONAL(LOG4CXX, test x$HAVE_LOG4CXX = xyes)
+
+AC_ARG_WITH([log4cxx-includes],
+	AC_HELP_STRING([--with-log4cxx-includes=PFX], [Prefix where log4cxx header files are]),
+	[gccLog4cxxIncludes="$withval"
+		AC_SUBST(LOG4CXX_INCLUDE, "$gccLog4cxxIncludes")],)
+
+AC_ARG_WITH([log4cxx-libraries],
+	AC_HELP_STRING([--with-log4cxx-libraries=PFX], [Prefix where where libraries for log4cxx are. In the most environments, this must be set]),
+	[gccLog4cxxLibraries="$withval"
+		AC_SUBST(LOG4CXX_LIBS, "$gccLog4cxxLibraries")],)
+		
 if test x$WINDOWS != xtrue; then
 	# Linux OS:
 	# First check for libm - otherwise libmp3lame will always fail
@@ -73,6 +99,11 @@ AC_ARG_WITH([mysql],
 	[enable experimental mysql support (default is no)])],
 	[],
 	[use_mysql=no])
+AC_ARG_WITH([activemq],
+	[AC_HELP_STRING([--with-activemq],
+	[enable experimental ActiveMQ support (default is no)])],
+	[use_als=$withval],
+	[use_activemq=no])
 AC_ARG_WITH([lame],
 	[AC_HELP_STRING([--with-lame],
 	[enable experimental mp3 lame support (default is no)])],
@@ -106,6 +137,9 @@ if test x$plugins == xno; then
 	
 	if test "x$use_vorbis" != xno; then
 		AC_MSG_ERROR([[vorbis support is not supported without --enable-plugins]])
+	fi
+	if test "x$use_activemq" != xno; then
+		AC_MSG_ERROR([[ActiveMQ support is not supported without --enable-plugins]])
 	fi
 else
 	if test "x$use_mysql" != xno; then
@@ -148,12 +182,26 @@ else
 		])
 
 	if test "x$use_sox" != xno; then
-	 AC_CHECK_HEADER([sox.h],
-                     ,
-                     [AC_MSG_ERROR([sox.h not found])])
+		AC_CHECK_HEADER([sox.h],
+		,
+		[AC_MSG_ERROR([sox not found])])
 	fi
+	
+	AS_IF([test "x$use_activemq" != xno],
+			[AC_CHECK_LIB([$ACTIVEMQLIBNAME],[main],
+				[
+					AC_SUBST([LIBACTIVEMQ], ["-l$ACTIVEMQLIBNAME"])
+					AC_DEFINE([HAVE_ACTIVEMQ], [1], [Define if you have activemq])
+					activemq=true
+				],
+				[if test "x$use_activemq" != xcheck; then
+					AC_MSG_FAILURE([--with-activemq but $ACTIVEMQLIBNAME failed])
+				fi
+			])
+		])
 
-	LIBSOX=
+
+	LIBS=
 		AS_IF([test "x$use_sox" != xno],
 			[AC_CHECK_LIB([$SOXLIBNAME],[sox_init],
 				[AC_SUBST([LIBSOX], ["-l$SOXLIBNAME"])
@@ -195,6 +243,7 @@ AM_CONDITIONAL(PLUGINS, test x$plugins = xyes)
 AM_CONDITIONAL(LAME, test x$lame = xtrue)
 AM_CONDITIONAL(SOX, test x$sox = xtrue)
 AM_CONDITIONAL(VORBIS, test x$vorbis = xtrue)
+AM_CONDITIONAL(ACTIVEMQ, test x$activemq = xtrue)
 
 AC_SUBST(LUA_LIB)
 AC_SUBST(LUA_INCLUDE)
