@@ -16,12 +16,15 @@ local toShowZVEI = {"99000", "99001"} ;
 
 function pluginFilter()
 	if (arg["plugin_name"]=="mysql") then
+	
 		for index,testwert in pairs(toShowZVEI) do 
 			if (testwert==arg["zvei"]) then
-				return 0
+				return 1;
 			end
 		end
 	end
+
+	
 	-- change return value in next line to "return 1" to enable filtering defined above!
 	return 0;
 end
