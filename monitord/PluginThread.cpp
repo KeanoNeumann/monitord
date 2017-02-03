@@ -154,6 +154,8 @@ MonitorPluginsManager::MonitorPluginsManager()
 
 bool MonitorPluginsManager::loadScriptFilter(std::string pluginFilterFileName)
 {
+	LOG_INFO("Load LUA Filer: " << pluginFilterFileName)
+
         #ifdef LUA
 	m_bUseLUAScript=false ;
         #endif

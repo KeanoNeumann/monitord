@@ -3,12 +3,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_LUA_H
-	#ifdef HAVE_LUALIB_H
-		// Alles für LUA scheint vorhanden zu sein
-		#define LUA
-	#endif
-#endif
+#define LUA
 
 #ifdef LUA
 extern "C" {

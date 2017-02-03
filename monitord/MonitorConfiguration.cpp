@@ -259,6 +259,7 @@ bool MonitorConfiguration::ReadConfiguration(std::string filename)
 
 	m_socketFilterFileName=getNodeText(config,"SocketFilterScript","") ;
 	m_pluginFilterFileName=getNodeText(config,"PluginFilterScript","") ;
+	LOG_INFO("Found Filter Script: " << getNodeText(config, "PluginFilterScript", ""))
 	XMLNode tcpNode = config.getChildNode("tcpsocket",0) ;
 
 	if (!(tcpNode.isEmpty()))

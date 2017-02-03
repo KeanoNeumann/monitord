@@ -178,12 +178,13 @@ void Monitor::MainLoop()
 	static SocketServer crusaderServer(&m_MonitorConfig,m_MonitorConfig.m_socketFilterFileName ,2000) ;
 	crusaderServer.m_ServerModus=SocketThread::crusader ;
 	crusaderServer.Start() ;
-	LOG_INFO("crusader socketserver started" )
+	LOG_INFO("crusader socketserver started")
 
 
-	/*******************************************************/
+		/*******************************************************/
 
 	#ifdef PLUGINS
+	LOG_INFO("Start loading plugins...")
 	//GetPluginsManager().loadPlugin("plugins/.libs/libmplugin_mysql-0.dll",NULL);
 	GetPluginsManager().loadScriptFilter(m_MonitorConfig.m_pluginFilterFileName) ;
 	GetPluginsManager().loadPluginsFromConfigNode(&m_MonitorConfig.m_configDataPlugins);
