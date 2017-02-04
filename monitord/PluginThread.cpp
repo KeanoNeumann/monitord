@@ -165,7 +165,7 @@ bool MonitorPluginsManager::loadScriptFilter(std::string pluginFilterFileName)
 		// LUA TEST
 		try
 		{
-			L = lua_open() ;
+			L = luaL_newstate() ;
 			luaL_openlibs(L) ;
 
 			if(luaL_loadfile(L, pluginFilterFileName.c_str()))
