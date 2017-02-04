@@ -6,10 +6,10 @@
 #define LUA
 
 #ifdef LUA
-extern "C" {
-#include <lua5.2/lua.h>
-#include <lua5.2/lauxlib.h>
-#include <lua5.2/lualib.h>
+extern "C"{
+    #include <lua5.2/lualib.h>
+    #include <lua5.2/lauxlib.h>
+    #include <lua5.2/lua.h>
 }
 #endif 
 

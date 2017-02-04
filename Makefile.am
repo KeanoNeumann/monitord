@@ -71,7 +71,7 @@ endif
 
 # LUA Headers und Libs einbinden
 monitord_monitord_CPPFLAGS += @LUA_INCLUDE@
-monitord_monitord_LDFLAGS += @LUA_LIB@
+monitord_monitord_LDFLAGS += -llua5.2
 
 
 if WINDOWS
