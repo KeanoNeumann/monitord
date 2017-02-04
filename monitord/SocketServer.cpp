@@ -64,7 +64,7 @@ SocketServer::SocketServer(MonitorConfiguration *config, std::string FilterFileN
 			// LUA TEST
 			try
 			{
-				L = lua_open() ;
+				L = luaL_newstate() ;
 				luaL_openlibs(L) ;
 
 
